@@ -24,6 +24,12 @@ def handle_webhook(string):
         return "bad request"
 
 
+# handles requests to pictures
+@route("/i/<path>")
+def handle_resource(path):
+    return static_file(path, root="images/")
+
+
 # run() has reasonable defaults
 if __name__ == '__main__':
     run(port=PORT)
