@@ -18,7 +18,7 @@ E               E
 X                 X
 T                   T
 ```
-2. Without spaces
+2. Without spaces:
 ```
 SAMPLE TEXT
 AA
@@ -45,6 +45,6 @@ You'll need to provide some kind of SSL-proxy to the bottle app used to host the
 If your server supports `systemd` like mine does, [here's](https://gist.github.com/bnfour/1ebcc358e70053d309b5137eae3d1cc9) how I set up this as a service.
 
 ### Credits
-* Avatar is a [CC0 photo](https://www.publicdomainpictures.net/view-image.php?image=236923&picture=cat-with-blue-eyes).
+* Avatar was a [CC0 photo](https://www.publicdomainpictures.net/view-image.php?image=236923&picture=cat-with-blue-eyes) until I decided to reuse newly introduced picture for "With spaces button".
 
 * The whole endeavor is loosely inspired by [this fine article](https://hackernoon.com/host-a-python-telegram-bot-using-azure-in-30-minutes-58f246cedf23).
