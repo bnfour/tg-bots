@@ -10,9 +10,18 @@ class BotWrapper(object):
     # whenever bot is spoken to directly, it replies this
     REPLY_MSG = "I am an inline bot, please summon me elsewhere."
 
+    # button titles
+    titles = ("With spaces", "Compact without spaces")
+    # and button descriptions
+    descs = ("Regular text.", "Uselful for long strings.")
+
     # webhook is set there
     def __init__(self):
         self.bot = telegram.Bot(self.TOKEN)
+
+        # urls to images for buttons, moved to constructor
+        #  to reuse SERVER variable
+        self.imgs = tuple(self.SERVER + i for i in ("/i/sparse.png", "/i/dense.png"))
 
         link = "https://{}/{}".format(self.SERVER, self.TOKEN)
         self.bot.set_webhook(url=link)
@@ -68,18 +77,19 @@ class BotWrapper(object):
     # generates inline "buttons" via so-called article buttons
     def generate_inline_answer(self, text):
         ret = []
-        # button titles,
-        titles = ("With spaces", "Compact without spaces")
-        # descriptions,
-        descs = ("Regular text.", "Uselful for long strings.")
-        # and generated text - everything for the two variants
+        # generated text - everything for the two variants
+        #   rest of data to make the buttons moved to class declaration
         msgs = (self.convert(text), self.convert_no_spaces(text))
 
-        for t, d, m in zip(titles, descs, msgs):
+        for t, d, m, i in zip(self.titles, self.descs, msgs, self.imgs):
             # first we indicate we use markdown in message that will be sent
             reply = telegram.InputTextMessageContent(m, parse_mode="Markdown")
             # then we generate result with that message and strings set above
             result = telegram.InlineQueryResultArticle(id=t, title=t,
-                        description=d, input_message_content=reply)
+                        description=d, input_message_content=reply,
+                        thumb_url=i, thumb_width=512, thumb_height=512)
+            # thumb sizes above are hardcoded, as both pictures are 512×512
+            #   a good approach is to actually load and measure them
+            #   with pillow, for instance
             ret.append(result)
         return ret
