@@ -87,9 +87,11 @@ class BotWrapper(object):
             # then we generate result with that message and strings set above
             result = telegram.InlineQueryResultArticle(id=t, title=t,
                         description=d, input_message_content=reply,
-                        thumb_url=i, thumb_width=512, thumb_height=512)
+                        thumb_url=i)
             # thumb sizes above are hardcoded, as both pictures are 512×512
             #   a good approach is to actually load and measure them
             #   with pillow, for instance
+			# I forgot to update these after scaling down,
+			#   wonder what will happen without sizes here?
             ret.append(result)
         return ret
