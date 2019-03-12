@@ -36,9 +36,9 @@ class CatMacroBot(BotWrapper):
         elif self.is_message_from_admin(message):
             admin_id = message.from_user.id
             if self.deletion_tracker[admin_id]:
-                self.handle_deletion_admin_input(message, admin_id)
+                return self.handle_deletion_admin_input(message, admin_id)
             else:
-                self.handle_regular_admin_input(message, admin_id)
+                return self.handle_regular_admin_input(message, admin_id)
         else:
             self.send_inline_nag(message)
         return "OK"
@@ -67,7 +67,7 @@ class CatMacroBot(BotWrapper):
             if ratio > 50:
                 results.append(tuple(self.data[caption], ratio))
         results.sort(key=lambda x: x[1], reverse=True)
-        results_no_ratio = (x[0] for x in results)
+        results_no_ratio = tuple(x[0] for x in results)
         returned_size = min(self.max_pics, len(results_no_ratio))
         return results_no_ratio[:returned_size:]
 
@@ -81,27 +81,29 @@ class CatMacroBot(BotWrapper):
                                   text="Delete what? Forward my own output.")
             self.deletion_tracker[admin_id] = True
         elif message.photo is not None and message.caption is not None:
-            # TODO actual addition
-            for photo in message.photos:
-                pic_id = photo.file_id
+            if len(message.photo) == 0:
                 self.bot.send_message(chat_id=message.chat_id,
-                                      text="picture ok!\nid {}".format(pic_id))
+                                      text="does not compute")
+            # TODO actual addition
+            pic_id = message.photo[0].file_id
+            self.bot.send_message(chat_id=message.chat_id,
+                                  text="picture ok!\nid {}".format(pic_id))
         else:
             self.bot.send_message(chat_id=message.chat_id,
-                                  text="does not compute")
+                                  text="i'm too dumb to understand this")
+        return "OK"
 
     def handle_deletion_admin_input(self, message, admin_id):
         """
         Executed when there is no delete requests.
         Sent photos are deleted from the collection if present.
         """
-        if message.photo is not None:
-            for photo in message.photos:
-                pic_id = photo.file_id
-                self.bot.send_message(chat_id=message.chat_id,
-                                      text="request to delet id {}"
-                                      .format(pic_id))
+        if message.photo is not None and len(message.photo) > 0:
+            pic_id = message.photo[0].file_id
+            self.bot.send_message(chat_id=message.chat_id,
+                                  text="request to delet id {}".format(pic_id))
         else:
             self.bot.send_message(chat_id=message.chat_id,
                                   text="this isn't a photo, delet disengaged")
         self.deletion_tracker[admin_id] = False
+        return "OK"
