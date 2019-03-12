@@ -1,9 +1,9 @@
 # main app file, simple bottle app
 from bottle import route, run, request, static_file
-from bot import BotWrapper
+from ladder_bot import LadderBot
 
-# instance to be used
-mybot = BotWrapper()
+# instances to be used
+bots = (LadderBot(), )
 
 # 8080 was already taken on my host
 PORT = 8081
@@ -18,10 +18,11 @@ def return_index_page():
 # handles any post request, if url matches bot's token, it's getting called
 @route("/<string>", method="POST")
 def handle_webhook(string):
-    if string == mybot.TOKEN:
-        return mybot.web_hook(request.json)
+    for bot in bots:
+        if bot.is_token(string):
+            return bot.handle_update(request.json)
     else:
-        return "bad request"
+        return "Bad request :("
 
 
 # handles requests to pictures
