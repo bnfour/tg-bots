@@ -1,7 +1,7 @@
 import telegram
 import os
 import json
-import fuzzywuzzy
+from fuzzywuzzy import fuzz
 
 import secrets
 from bot_wrapper import BotWrapper
@@ -63,9 +63,9 @@ class CatMacroBot(BotWrapper):
         if len(query) < 3:
             return results
         for caption in self.data:
-            ratio = fuzzywuzzy.fuzz.partial_ratio(query, caption)
+            ratio = fuzz.partial_ratio(query, caption)
             if ratio > 50:
-                results.append(tuple(self.data[caption], ratio))
+                results.append((self.data[caption], ratio))
         results.sort(key=lambda x: x[1], reverse=True)
         results_no_ratio = tuple(x[0] for x in results)
         returned_size = min(self.max_pics, len(results_no_ratio))
@@ -78,16 +78,26 @@ class CatMacroBot(BotWrapper):
         """
         if message.text is not None and message.text.startswith("/delet"):
             self.bot.send_message(chat_id=message.chat_id,
-                                  text="Delete what? Forward my own output.")
+                                  text="Delete what? Forward a picture.")
             self.deletion_tracker[admin_id] = True
         elif message.photo is not None and message.caption is not None:
             if len(message.photo) == 0:
                 self.bot.send_message(chat_id=message.chat_id,
-                                      text="does not compute")
+                                      text="Does not compute.")
             # TODO actual addition
             pic_id = message.photo[0].file_id
-            self.bot.send_message(chat_id=message.chat_id,
-                                  text="picture ok!\nid {}".format(pic_id))
+            if message.caption in self.data:
+                self.bot.send_message(chat_id=message.chat_id,
+                                      text="Error! Duplicate caption.")
+            elif pic_id in self.data.values():
+                self.bot.send_message(chat_id=message.chat_id,
+                                      text="Error! Duplicate image.")
+            else:
+                self.data[message.caption] = pic_id
+                self.bot.send_message(chat_id=message.chat_id,
+                                      text="{} -> {}\nOK"
+                                      .format(message.caption, pic_id))
+                self.dump_data()
         else:
             self.bot.send_message(chat_id=message.chat_id,
                                   text="i'm too dumb to understand this")
@@ -100,10 +110,21 @@ class CatMacroBot(BotWrapper):
         """
         if message.photo is not None and len(message.photo) > 0:
             pic_id = message.photo[0].file_id
-            self.bot.send_message(chat_id=message.chat_id,
-                                  text="request to delet id {}".format(pic_id))
+            if pic_id in self.data.values():
+                for key in self.data:
+                    if self.data[key] == pic_id:
+                        del self.data[key]
+                self.dump_data()
+            else:
+                self.bot.send_message(chat_id=message.chat_id,
+                                      text="Error! Image not found.")
         else:
             self.bot.send_message(chat_id=message.chat_id,
                                   text="this isn't a photo, delet disengaged")
         self.deletion_tracker[admin_id] = False
         return "OK"
+
+    def dump_data(self):
+        "Saves current collection to file so it can survive restarts."
+        with open(self.file_path, "w") as file:
+            json.dump(self.data, file, indent="\t")
