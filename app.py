@@ -1,9 +1,10 @@
 # main app file, simple bottle app
 from bottle import route, run, request, static_file
 from ladder_bot import LadderBot
+from cat_macro_bot import CatMacroBot
 
 # instances to be used
-bots = (LadderBot(), )
+bots = (LadderBot(), CatMacroBot())
 
 # 8080 was already taken on my host
 PORT = 8081
