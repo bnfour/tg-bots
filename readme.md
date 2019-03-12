@@ -1,5 +1,5 @@
-# bnfour's telegram bot(s)
-Currently there is source for one telegram bot.
+# bnfour's (python) telegram bot(s)
+Currently there is source for two (very-very useful) telegram bots.
 ## Ladder bot (officially hosted as [@bnladder_bot](https://t.me/bnladder_bot))
 Inline bot that generates texts running along horizontal, vertical and diagonal directions, for instance:
 
@@ -12,7 +12,7 @@ M   M
 P     P
 L       L
 E         E
-             
+
 T             T
 E               E
 X                 X
@@ -33,18 +33,29 @@ X        X
 T         T
 ```
 
-Yup, pretty useless.
+## Cat macro bot (officially hosted as [@bncatpics_bot](https://t.me/bncatpics_bot))
+Inline bot that can be used to post any pictures searchable by defined captions. I use it to store and post cat pictures I used to spam before I moved to Telegram and started spamming stickers.  
+Here's an example screenshot:  
+![also pictured: fancy car](https://i.imgur.com/uDQmbxa.png)  
 
-### Deployment
+Also you can try searching for stuff like `cat tech` or `bread` to see the outstanding quality of the pictures I hoarded.
+
+### Usage
+This bot isn't strictly inline: administrator accounts can manage pictures via chatting:
+* Sending a captioned photo will add that photo and make it searchable.
+* `/delete` (`/delet` or even `/delete_this` will also work) puts bot into deletion mode: next picture to be sent (try to forward actual bot output) will be deleted from the collection if present. Anything else just cancels the deletion mode.
+
+## Deployment
 Dependencies:
-* [bottle](https://pypi.python.org/pypi/bottle/0.12.13)
-* [telegram-python-bot](https://pypi.python.org/pypi/python-telegram-bot/10.0.1)
+* [bottle](https://pypi.python.org/pypi/bottle/)
+* [telegram-python-bot](https://pypi.python.org/pypi/python-telegram-bot/)
+* [fuzzywuzzy](https://pypi.org/project/fuzzywuzzy/)
 
-You'll need to provide some kind of SSL-proxy to the bottle app used to host the bot (`nginx` will do nicely). Token and server are set as environment variables `BNTGBOT_TOKEN` and `BNTGBOT_SERVER` respectively.
+Configuration, including tokens for both bots and list of admin accounts, is stored in `secrets.py` file.
 
-If your server supports `systemd` like mine does, [here's](https://gist.github.com/bnfour/1ebcc358e70053d309b5137eae3d1cc9) how I set up this as a service.
+You'll need to provide some kind of SSL-proxy to the bottle app used to host the bots (`nginx` will do nicely). 
 
-### Credits
-* Avatar was a [CC0 photo](https://www.publicdomainpictures.net/view-image.php?image=236923&picture=cat-with-blue-eyes) until I decided to reuse newly introduced picture for "With spaces button".
+## Credits
+* Ladder bot's avatar was a [CC0 photo](https://www.publicdomainpictures.net/view-image.php?image=236923&picture=cat-with-blue-eyes) until I decided to reuse newly introduced picture for "With spaces button".
 
 * The whole endeavor is loosely inspired by [this fine article](https://hackernoon.com/host-a-python-telegram-bot-using-azure-in-30-minutes-58f246cedf23).
