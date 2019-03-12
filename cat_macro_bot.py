@@ -83,8 +83,7 @@ class CatMacroBot(BotWrapper):
         elif message.photo is not None and message.caption is not None:
             if len(message.photo) == 0:
                 self.bot.send_message(chat_id=message.chat_id,
-                                      text="Does not compute.")
-            # TODO actual addition
+                                      text="Error! Does not compute.")
             pic_id = message.photo[0].file_id
             if message.caption in self.data:
                 self.bot.send_message(chat_id=message.chat_id,
@@ -100,12 +99,12 @@ class CatMacroBot(BotWrapper):
                 self.dump_data()
         else:
             self.bot.send_message(chat_id=message.chat_id,
-                                  text="i'm too dumb to understand this")
+                                  text="Sorry, can't understand you.")
         return "OK"
 
     def handle_deletion_admin_input(self, message, admin_id):
         """
-        Executed when there is no delete requests.
+        Executed when there is a delete request.
         Sent photos are deleted from the collection if present.
         """
         if message.photo is not None and len(message.photo) > 0:
@@ -113,14 +112,16 @@ class CatMacroBot(BotWrapper):
             if pic_id in self.data.values():
                 for key in self.data:
                     if self.data[key] == pic_id:
-                        del self.data[key]
+                        self.data.pop(key)
+                        self.bot.send_message(chat_id=message.chat_id,
+                                              text="'{}'\nDEL OK".format(key))
                 self.dump_data()
             else:
                 self.bot.send_message(chat_id=message.chat_id,
                                       text="Error! Image not found.")
         else:
             self.bot.send_message(chat_id=message.chat_id,
-                                  text="this isn't a photo, delet disengaged")
+                                  text="Error! No image, deletion cancelled.")
         self.deletion_tracker[admin_id] = False
         return "OK"
 
