@@ -109,12 +109,12 @@ class CatMacroBot(BotWrapper):
         """
         if message.photo is not None and len(message.photo) > 0:
             pic_id = message.photo[0].file_id
-            if pic_id in self.data.values():
-                for key in self.data:
-                    if self.data[key] == pic_id:
-                        self.data.pop(key)
-                        self.bot.send_message(chat_id=message.chat_id,
-                                              text="'{}'\nDEL OK".format(key))
+            if pic_id in tuple(self.data.values()):
+                self.data = \
+                    {key: value for key, value in self.data.items()
+                        if value != pic_id}
+                self.bot.send_message(chat_id=message.chat_id,
+                                      text="Removal OK.")
                 self.dump_data()
             else:
                 self.bot.send_message(chat_id=message.chat_id,
