@@ -1,11 +1,12 @@
 import telegram
+import secrets
 
 
 class BotWrapper(object):
     "An 'abstract' class to reuse code between different bots in this app."
     # should be overriden in actual bots
-    token = None
-    server = None  # TODO load from secrets
+    token = ""
+    server = secrets.SERVER
     # should complete "to get a propmpts for [inline_purpose]"
     inline_purpose = "ERROR"
 
@@ -35,12 +36,16 @@ class BotWrapper(object):
         "Should be overriden to handle incoming inline queries."
         pass
 
+    def is_token(self, string):
+        "Checks whether provided string is indeed token of this bot"
+        return string == self.token
+
     def is_message_from_admin(self, message):
         "Checks whether a direct message comes from an admin of this app."
         if message.from_user is None:
             return False
         id_from = message.from_user.id
-        # TODO load admin list from secrets and check
+        return id_from in secrets.ADMINS
 
     def send_inline_nag(self, message):
         """
