@@ -28,9 +28,13 @@ class LadderBot(BotWrapper):
 
     def handle_inline_query(self, inline_query):
         "Returns inline results."
-        results = self.generate_inline_answer(inline_query.query)
-        self.bot.answerInlineQuery(inline_query.id, results)
-        return "OK"
+        # skips empty messages
+        if len(inline_query.query) > 0:
+            results = self.generate_inline_answer(inline_query.query)
+            self.bot.answer_inline_query(inline_query.id, results)
+            return "OK"
+        else:
+            return "Empty message skip, kinda OK"
 
     # convert function #0, with spaces
     def convert(self, string):
