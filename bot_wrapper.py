@@ -23,7 +23,7 @@ class BotWrapper(object):
 
         atexit.register(self.cleanup)
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         "Cleanup method to remove the webhook on exit for additional tidiness."
         self.bot.delete_webhook()
 

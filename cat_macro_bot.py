@@ -126,7 +126,7 @@ class CatMacroBot(BotWrapper):
 
         return HTTPResponse(body="OK", status=200)
 
-    def dump_data(self):
+    def dump_data(self) -> None:
         "Saves current collection to file so it can survive restarts."
         with open(self.file_path, "w") as file:
             json.dump(self.data, file, indent="\t")
