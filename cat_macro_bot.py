@@ -115,15 +115,12 @@ class CatMacroBot(BotWrapper):
             if pic_id in tuple(self.data.values()):
                 self.data = {key: value for key, value in self.data.items()
                     if value != pic_id}
-                self.bot.send_message(chat_id=message.chat_id,
-                    text="Removal OK.")
                 self.dump_data()
+                self.reply(message, "Removal OK.")
             else:
-                self.bot.send_message(chat_id=message.chat_id,
-                    text="Error! Image not found.")
+                self.reply(message, "Error! Image not found.")
         else:
-            self.bot.send_message(chat_id=message.chat_id,
-                text="Error! No image, deletion cancelled.")
+            self.reply(message, "Error! No image, deletion cancelled.")
         self.deletion_tracker[admin_id] = False
 
         return HTTPResponse(body="OK", status=200)
