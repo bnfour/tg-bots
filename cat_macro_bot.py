@@ -2,6 +2,8 @@ import telegram
 import os
 import json
 from fuzzywuzzy import fuzz
+from bottle import HTTPResponse
+from typing import List, Tuple
 
 from config_secrets import ADMINS, CAT_MACRO_BOT_TOKEN
 from bot_wrapper import BotWrapper
@@ -15,6 +17,8 @@ class CatMacroBot(BotWrapper):
     file_path = "data/cat_pics.json"
     # up to this amount of somewhat relevant pics will be served
     max_pics = 7
+    # ratio of similarity threshold between image captions and provided query
+    similarity_threshold = 50
 
     def __init__(self):
         super().__init__()
@@ -29,7 +33,7 @@ class CatMacroBot(BotWrapper):
         # used to keep track of whether admins issued /delete commands
         self.deletion_tracker = {admin: False for admin in ADMINS}
 
-    def handle_message(self, message):
+    def handle_message(self, message: telegram.Message) -> HTTPResponse:
         "Responds to /start, also adds pictures from admins to collection."
         if message.text is not None and message.text == "/start":
             self.send_inline_start(message)
@@ -41,37 +45,42 @@ class CatMacroBot(BotWrapper):
                 return self.handle_regular_admin_input(message, admin_id)
         else:
             self.send_inline_nag(message)
-        return "OK"
 
-    def handle_inline_query(self, inline_query):
+        return HTTPResponse(body="OK", status=200)
+
+    def handle_inline_query(self, inline_query: telegram.InlineQuery) -> HTTPResponse:
         "Returns inline results."
         results = self.generate_inline_results(inline_query.query)
         self.bot.answer_inline_query(inline_query.id, results)
-        return "OK"
 
-    def generate_inline_results(self, query):
-        "Generates inline answers as pictures."
+        return HTTPResponse(body="OK", status=200)
+
+    def generate_inline_results(self, query: str) -> List[telegram.InlineQueryResultCachedPhoto]:
+        "Generates inline answers as pictures already saved as Telegram media."
         inline_results = []
         for ans_id, media_id in enumerate(self.find_most_relevant_pics(query)):
             r = telegram.InlineQueryResultCachedPhoto(ans_id, media_id)
             inline_results.append(r)
         return inline_results
 
-    def find_most_relevant_pics(self, query):
+    def find_most_relevant_pics(self, query: str) -> Tuple[str]:
         "Finds up to max_pics results and returns them as tuple of media ids"
-        results = []
+        # skip too short queries
         if len(query) < 3:
-            return results
+            return tuple()
+        # populate a list of (ratio, media id) for entries
+        # with somewhat matching ratios
+        results: List[Tuple[str, int]] = []
         for caption in self.data:
             ratio = fuzz.partial_ratio(query, caption)
-            if ratio > 50:
+            if ratio > self.similarity_threshold:
                 results.append((self.data[caption], ratio))
+        # take up to max_pics best matching results
+        entries_to_take = min(self.max_pics, len(results))
         results.sort(key=lambda x: x[1], reverse=True)
-        results_no_ratio = tuple(x[0] for x in results)
-        returned_size = min(self.max_pics, len(results_no_ratio))
-        return results_no_ratio[:returned_size:]
+        return tuple(x[0] for x in results[:entries_to_take])
 
-    def handle_regular_admin_input(self, message, admin_id):
+    def handle_regular_admin_input(self, message: telegram.Message, admin_id: int) -> HTTPResponse:
         """
         Executed when there is no delete requests.
         Sent captioned photos are added to collection.
@@ -83,7 +92,7 @@ class CatMacroBot(BotWrapper):
         elif message.photo is not None and message.caption is not None:
             if len(message.photo) == 0:
                 self.bot.send_message(chat_id=message.chat_id,
-                text="Error! Does not compute.")
+                    text="Error! Does not compute.")
             pic_id = message.photo[0].file_id
             if message.caption in self.data:
                 self.bot.send_message(chat_id=message.chat_id,
@@ -99,9 +108,10 @@ class CatMacroBot(BotWrapper):
         else:
             self.bot.send_message(chat_id=message.chat_id,
                 text="Sorry, can't understand you.")
-        return "OK"
 
-    def handle_deletion_admin_input(self, message, admin_id):
+        return HTTPResponse(body="OK", status=200)
+
+    def handle_deletion_admin_input(self, message: telegram.Message, admin_id: int) -> HTTPResponse:
         """
         Executed when there is a delete request.
         Sent photos are deleted from the collection if present.
@@ -109,9 +119,8 @@ class CatMacroBot(BotWrapper):
         if message.photo is not None and len(message.photo) > 0:
             pic_id = message.photo[0].file_id
             if pic_id in tuple(self.data.values()):
-                self.data = \
-                    {key: value for key, value in self.data.items()
-                        if value != pic_id}
+                self.data = {key: value for key, value in self.data.items()
+                    if value != pic_id}
                 self.bot.send_message(chat_id=message.chat_id,
                     text="Removal OK.")
                 self.dump_data()
@@ -122,7 +131,8 @@ class CatMacroBot(BotWrapper):
             self.bot.send_message(chat_id=message.chat_id,
                 text="Error! No image, deletion cancelled.")
         self.deletion_tracker[admin_id] = False
-        return "OK"
+
+        return HTTPResponse(body="OK", status=200)
 
     def dump_data(self):
         "Saves current collection to file so it can survive restarts."

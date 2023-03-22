@@ -1,5 +1,6 @@
 import telegram
 import atexit
+from bottle import HTTPResponse
 from config_secrets import SERVER, ADMINS
 
 
@@ -23,37 +24,40 @@ class BotWrapper(object):
     def cleanup(self):
         self.bot.delete_webhook()
 
-    def handle_update(self, update_as_json):
+    def handle_update(self, update_as_json: str) -> HTTPResponse:
         """
         Routes updates to relevant methods.
         Supports only direct messages and inline queries.
         """
-        update = telegram.update.Update.de_json(update_as_json, self.bot)
+        update: telegram.Update = telegram.Update.de_json(update_as_json, self.bot)
         if update.message is not None:
             return self.handle_message(update.message)
         elif update.inline_query is not None:
             return self.handle_inline_query(update.inline_query)
+        else:
+            # ignore all other updates, but still respond to the request
+            return HTTPResponse(status=200)
 
-    def handle_message(self, message):
+    def handle_message(self, message: telegram.Message) -> HTTPResponse:
         "Should be overriden to handle incoming messages."
         pass
 
-    def handle_inline_query(self, inline_query):
+    def handle_inline_query(self, inline_query: telegram.InlineQuery) -> HTTPResponse:
         "Should be overriden to handle incoming inline queries."
         pass
 
-    def is_token(self, string):
+    def is_token(self, maybe_token: str) -> bool:
         "Checks whether provided string is indeed token of this bot"
-        return string == self.token
+        return maybe_token == self.token
 
-    def is_message_from_admin(self, message):
+    def is_message_from_admin(self, message: telegram.Message) -> bool:
         "Checks whether a direct message comes from an admin of this app."
         if message.from_user is None:
             return False
         id_from = message.from_user.id
         return id_from in ADMINS
 
-    def send_inline_nag(self, message):
+    def send_inline_nag(self, message: telegram.Message) -> None:
         """
         Default reply of ladder bot, now promoted to common method.
         Also a way to test whether 'admin' code works.
@@ -62,7 +66,7 @@ class BotWrapper(object):
             else "I'm an inline bot, please summon me elsewhere."
         self.bot.send_message(chat_id=message.chat_id, text=reply_text)
 
-    def send_inline_start(self, message):
+    def send_inline_start(self, message: telegram.Message) -> None:
         """
         Default reply of inline bots to /start command.
         Briefly informs user on what this bot can do.
