@@ -3,7 +3,7 @@ import os
 import json
 from fuzzywuzzy import fuzz
 from bottle import HTTPResponse
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 from config_secrets import ADMINS, CAT_MACRO_BOT_TOKEN
 from bot_wrapper import BotWrapper
@@ -22,14 +22,12 @@ class CatMacroBot(BotWrapper):
 
     def __init__(self):
         super().__init__()
-        # data is dict macro text -> Telegram media id to send
-        self.data = None
         # loading of exisiting data
         if os.path.exists(self.file_path):
             with open(self.file_path, "r") as file:
-                self.data = json.load(file)
+                self.data: Dict[str, str] = json.load(file)
         else:
-            self.data = dict()
+            self.data: Dict[str, str] = dict()
         # used to keep track of whether admins issued /delete commands
         self.deletion_tracker = {admin: False for admin in ADMINS}
 
@@ -86,28 +84,24 @@ class CatMacroBot(BotWrapper):
         Sent captioned photos are added to collection.
         """
         if message.text is not None and message.text.startswith("/delet"):
-            self.bot.send_message(chat_id=message.chat_id,
-                text="Delete what? Forward a picture.")
             self.deletion_tracker[admin_id] = True
+            self.reply(message, "Delete what? Forward a picture.")
         elif message.photo is not None and message.caption is not None:
-            if len(message.photo) == 0:
-                self.bot.send_message(chat_id=message.chat_id,
-                    text="Error! Does not compute.")
-            pic_id = message.photo[0].file_id
-            if message.caption in self.data:
-                self.bot.send_message(chat_id=message.chat_id,
-                    text="Error! Duplicate caption.")
-            elif pic_id in self.data.values():
-                self.bot.send_message(chat_id=message.chat_id,
-                    text="Error! Duplicate image.")
+            if len(message.photo) > 0:
+                pic_id = message.photo[0].file_id
+                if message.caption in self.data:
+                    self.reply(message, "Error! Duplicate caption.")
+                elif pic_id in self.data.values():
+                    # TODO consider providing the existing caption
+                    self.reply(message, "Error! Duplicate image.")
+                else:
+                    self.data[message.caption] = pic_id
+                    self.dump_data()
+                    self.reply(message, f"{message.caption} -> {pic_id}\nOK")
             else:
-                self.data[message.caption] = pic_id
-                self.bot.send_message(chat_id=message.chat_id,
-                    text="{} -> {}\nOK".format(message.caption, pic_id))
-                self.dump_data()
+                self.reply(message, "Error! Does not compute.")
         else:
-            self.bot.send_message(chat_id=message.chat_id,
-                text="Sorry, can't understand you.")
+            self.reply(message, "Sorry, can't understand you.")
 
         return HTTPResponse(body="OK", status=200)
 

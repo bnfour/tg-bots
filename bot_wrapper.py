@@ -22,6 +22,7 @@ class BotWrapper(object):
         atexit.register(self.cleanup)
 
     def cleanup(self):
+        "Cleanup method to remove the webhook on exit for additional tidiness."
         self.bot.delete_webhook()
 
     def handle_update(self, update_as_json: str) -> HTTPResponse:
@@ -57,6 +58,10 @@ class BotWrapper(object):
         id_from = message.from_user.id
         return id_from in ADMINS
 
+    def reply(self, message: telegram.Message, text: str) -> None:
+        "Convenience method to be repeteadly called within the bots."
+        self.bot.send_message(chat_id=message.chat_id, text=text)
+
     def send_inline_nag(self, message: telegram.Message) -> None:
         """
         Default reply of ladder bot, now promoted to common method.
@@ -64,7 +69,7 @@ class BotWrapper(object):
         """
         reply_text = "Hello boss." if self.is_message_from_admin(message) \
             else "I'm an inline bot, please summon me elsewhere."
-        self.bot.send_message(chat_id=message.chat_id, text=reply_text)
+        self.reply(message, reply_text)
 
     def send_inline_start(self, message: telegram.Message) -> None:
         """
@@ -75,4 +80,4 @@ class BotWrapper(object):
         reply_text = "Hi there!\nI'm an inline bot, so feel free to summon" +\
             " me in other chats as\n@{} sample text\nto".format(my_name) +\
             " get prompts for {}.".format(self.inline_purpose)
-        self.bot.send_message(chat_id=message.chat_id, text=reply_text)
+        self.reply(message, reply_text)
