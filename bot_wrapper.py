@@ -1,4 +1,5 @@
 import telegram
+import atexit
 from config_secrets import SERVER, ADMINS
 
 
@@ -16,6 +17,11 @@ class BotWrapper(object):
         # please note HTTPS is enforced
         webhook_url = "https://{}/{}".format(self.server, self.token)
         self.bot.set_webhook(url=webhook_url)
+
+        atexit.register(self.cleanup)
+
+    def cleanup(self):
+        self.bot.delete_webhook()
 
     def handle_update(self, update_as_json):
         """

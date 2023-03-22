@@ -1,5 +1,5 @@
 # main app file, simple bottle app
-from bottle import route, run, request, static_file
+from bottle import route, run, request, static_file, HTTPResponse
 from ladder_bot import LadderBot
 from cat_macro_bot import CatMacroBot
 
@@ -23,7 +23,7 @@ def handle_webhook(string):
         if bot.is_token(string):
             return bot.handle_update(request.json)
     else:
-        return "Bad request :("
+        return HTTPResponse(status=404)
 
 
 # handles requests to pictures
