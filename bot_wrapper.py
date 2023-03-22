@@ -16,7 +16,7 @@ class BotWrapper(object):
         "Common setup happens here."
         self.bot = telegram.Bot(self.token)
         # please note HTTPS is enforced
-        webhook_url = "https://{}/{}".format(self.server, self.token)
+        webhook_url = f"https://{self.server}/{self.token}"
         self.bot.set_webhook(url=webhook_url)
 
         atexit.register(self.cleanup)
@@ -78,6 +78,6 @@ class BotWrapper(object):
         """
         my_name = self.bot.get_me().username
         reply_text = "Hi there!\nI'm an inline bot, so feel free to summon" +\
-            " me in other chats as\n@{} sample text\nto".format(my_name) +\
-            " get prompts for {}.".format(self.inline_purpose)
+            f" me in other chats as\n@{my_name} sample text\nto" +\
+            f" get prompts for {self.inline_purpose}."
         self.reply(message, reply_text)
