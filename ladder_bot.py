@@ -1,11 +1,11 @@
 import telegram
-import secrets
+from config_secrets import LADDER_BOT_TOKEN
 from bot_wrapper import BotWrapper
 
 
 class LadderBot(BotWrapper):
     "Ladder bot, now with probably cleaner code!"
-    token = secrets.LADDER_BOT_TOKEN
+    token = LADDER_BOT_TOKEN
     inline_purpose = "ladder-like texts"
 
     def __init__(self):
@@ -80,8 +80,6 @@ class LadderBot(BotWrapper):
             r = telegram.InputTextMessageContent(m, parse_mode="Markdown")
             # then we generate result with that message and strings set above
             result = telegram.InlineQueryResultArticle(id=t, title=t,
-                                                       description=d,
-                                                       input_message_content=r,
-                                                       thumb_url=i)
+                description=d, input_message_content=r, thumb_url=i)
             ret.append(result)
         return ret

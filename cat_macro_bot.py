@@ -3,13 +3,13 @@ import os
 import json
 from fuzzywuzzy import fuzz
 
-import secrets
+from config_secrets import ADMINS, CAT_MACRO_BOT_TOKEN
 from bot_wrapper import BotWrapper
 
 
 class CatMacroBot(BotWrapper):
     "Class for inline searches of predefined collection of pictures"
-    token = secrets.CAT_MACRO_BOT_TOKEN
+    token = CAT_MACRO_BOT_TOKEN
     inline_purpose = "matching cat pictures"
     # path to physical backup of available pictures
     file_path = "data/cat_pics.json"
@@ -27,7 +27,7 @@ class CatMacroBot(BotWrapper):
         else:
             self.data = dict()
         # used to keep track of whether admins issued /delete commands
-        self.deletion_tracker = {admin: False for admin in secrets.ADMINS}
+        self.deletion_tracker = {admin: False for admin in ADMINS}
 
     def handle_message(self, message):
         "Responds to /start, also adds pictures from admins to collection."
@@ -78,28 +78,27 @@ class CatMacroBot(BotWrapper):
         """
         if message.text is not None and message.text.startswith("/delet"):
             self.bot.send_message(chat_id=message.chat_id,
-                                  text="Delete what? Forward a picture.")
+                text="Delete what? Forward a picture.")
             self.deletion_tracker[admin_id] = True
         elif message.photo is not None and message.caption is not None:
             if len(message.photo) == 0:
                 self.bot.send_message(chat_id=message.chat_id,
-                                      text="Error! Does not compute.")
+                text="Error! Does not compute.")
             pic_id = message.photo[0].file_id
             if message.caption in self.data:
                 self.bot.send_message(chat_id=message.chat_id,
-                                      text="Error! Duplicate caption.")
+                    text="Error! Duplicate caption.")
             elif pic_id in self.data.values():
                 self.bot.send_message(chat_id=message.chat_id,
-                                      text="Error! Duplicate image.")
+                    text="Error! Duplicate image.")
             else:
                 self.data[message.caption] = pic_id
                 self.bot.send_message(chat_id=message.chat_id,
-                                      text="{} -> {}\nOK"
-                                      .format(message.caption, pic_id))
+                    text="{} -> {}\nOK".format(message.caption, pic_id))
                 self.dump_data()
         else:
             self.bot.send_message(chat_id=message.chat_id,
-                                  text="Sorry, can't understand you.")
+                text="Sorry, can't understand you.")
         return "OK"
 
     def handle_deletion_admin_input(self, message, admin_id):
@@ -114,14 +113,14 @@ class CatMacroBot(BotWrapper):
                     {key: value for key, value in self.data.items()
                         if value != pic_id}
                 self.bot.send_message(chat_id=message.chat_id,
-                                      text="Removal OK.")
+                    text="Removal OK.")
                 self.dump_data()
             else:
                 self.bot.send_message(chat_id=message.chat_id,
-                                      text="Error! Image not found.")
+                    text="Error! Image not found.")
         else:
             self.bot.send_message(chat_id=message.chat_id,
-                                  text="Error! No image, deletion cancelled.")
+                text="Error! No image, deletion cancelled.")
         self.deletion_tracker[admin_id] = False
         return "OK"
 

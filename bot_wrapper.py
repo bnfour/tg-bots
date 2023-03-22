@@ -1,19 +1,19 @@
 import telegram
-import secrets
+from config_secrets import SERVER, ADMINS
 
 
 class BotWrapper(object):
     "An 'abstract' class to reuse code between different bots in this app."
     # should be overriden in actual bots
     token = ""
-    server = secrets.SERVER
+    server = SERVER
     # should complete "to get a propmpts for [inline_purpose]"
     inline_purpose = "ERROR"
 
     def __init__(self):
         "Common setup happens here."
         self.bot = telegram.Bot(self.token)
-
+        # please note HTTPS is enforced
         webhook_url = "https://{}/{}".format(self.server, self.token)
         self.bot.set_webhook(url=webhook_url)
 
@@ -45,7 +45,7 @@ class BotWrapper(object):
         if message.from_user is None:
             return False
         id_from = message.from_user.id
-        return id_from in secrets.ADMINS
+        return id_from in ADMINS
 
     def send_inline_nag(self, message):
         """
@@ -63,6 +63,6 @@ class BotWrapper(object):
         """
         my_name = self.bot.get_me().username
         reply_text = "Hi there!\nI'm an inline bot, so feel free to summon" +\
-            " me in other chats as\n@{} sample text\nto ".format(my_name) +\
-            "get prompts for {}.".format(self.inline_purpose)
+            " me in other chats as\n@{} sample text\nto".format(my_name) +\
+            " get prompts for {}.".format(self.inline_purpose)
         self.bot.send_message(chat_id=message.chat_id, text=reply_text)
