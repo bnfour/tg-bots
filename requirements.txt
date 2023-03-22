@@ -1,0 +1,3 @@
+bottle
+python-telegram-bot
+fuzzywuzzy

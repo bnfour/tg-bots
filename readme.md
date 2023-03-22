@@ -46,16 +46,8 @@ This bot isn't strictly inline: administrator accounts can manage pictures via c
 * `/delete` (`/delet` or even `/delete_this` will also work) puts bot into deletion mode: next picture to be sent (try to forward actual bot output) will be deleted from the collection if present. Anything else just cancels the deletion mode.
 
 ## Deployment
-Dependencies:
-* [bottle](https://pypi.python.org/pypi/bottle/)
-* [telegram-python-bot](https://pypi.python.org/pypi/python-telegram-bot/)
-* [fuzzywuzzy](https://pypi.org/project/fuzzywuzzy/)
+See `requirements.txt` for dependencies.
 
 Configuration, including tokens for both bots and list of admin accounts, is stored in `secrets.py` file.
 
 You'll need to provide some kind of SSL-proxy to the bottle app used to host the bots (`nginx` will do nicely). 
-
-## Credits
-* Ladder bot's avatar was a [CC0 photo](https://www.publicdomainpictures.net/view-image.php?image=236923&picture=cat-with-blue-eyes) until I decided to reuse newly introduced picture for "With spaces button".
-
-* The whole endeavor is loosely inspired by [this fine article](https://hackernoon.com/host-a-python-telegram-bot-using-azure-in-30-minutes-58f246cedf23).
