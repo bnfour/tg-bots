@@ -1,3 +1,5 @@
 bottle
-python-telegram-bot
+# it's easier to write from scratch than to rewrite this to use asyncio
+# let's hope Telegram API 6.3 stays useable and relevant for the foreseeable future
+python-telegram-bot == 13.15
 fuzzywuzzy
