@@ -4,6 +4,7 @@ import telegram
 from bottle import HTTPResponse
 
 from config_secrets import SERVER, ADMINS
+from bot_info import BotInfo
 
 
 class BotWrapper(object):
@@ -32,6 +33,13 @@ class BotWrapper(object):
         "A check whether is bot is configured to be active by providing a non-empty token"
         # imagine using js-like !! shenanigans
         return not not self.token
+
+    def get_data(self) -> BotInfo:
+        "Returns general bot info for display"
+        is_active = self.is_active()
+        name = self.bot.get_me().username if is_active \
+            else None
+        return BotInfo(is_active, name)
 
     def handle_update(self, update_as_json: str) -> HTTPResponse:
         """
