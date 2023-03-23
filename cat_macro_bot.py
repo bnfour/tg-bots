@@ -92,13 +92,14 @@ class CatMacroBot(BotWrapper):
                 pic_id = message.photo[0].file_id
                 if message.caption in self.data:
                     self.reply(message, "Error! Duplicate caption.")
-                elif pic_id in self.data.values():
-                    # TODO consider providing the existing caption
-                    self.reply(message, "Error! Duplicate image.")
+                # TODO there was a check for the same image, but it did't work,
+                # because file_id we used to check is not the same (file_unique_id is)
+                # for the reuploads of the same image
+                # but to think, why would we limit this anyway?
                 else:
                     self.data[message.caption] = pic_id
                     self.dump_data()
-                    self.reply(message, f"{message.caption} -> {pic_id}\nOK")
+                    self.reply(message, f"{message.caption} → {pic_id}\nOK")
             else:
                 self.reply(message, "Error! Does not compute.")
         else:
@@ -113,13 +114,13 @@ class CatMacroBot(BotWrapper):
         """
         if message.photo is not None and len(message.photo) > 0:
             pic_id = message.photo[0].file_id
-            if pic_id in tuple(self.data.values()):
+            if pic_id in self.data.values():
                 self.data = {key: value for key, value in self.data.items()
                     if value != pic_id}
                 self.dump_data()
                 self.reply(message, "Removal OK.")
             else:
-                self.reply(message, "Error! Image not found.")
+                self.reply(message, "Error! Image not found. Try forwarding my own output.")
         else:
             self.reply(message, "Error! No image, deletion cancelled.")
         self.deletion_tracker[admin_id] = False
