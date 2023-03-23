@@ -21,7 +21,7 @@ def return_index_page() -> HTTPResponse:
 @route("/<string>", method="POST")
 def handle_webhook(string: str) -> HTTPResponse:
     for bot in bots:
-        if bot.is_token(string):
+        if bot.is_active() and bot.is_token(string):
             return bot.handle_update(request.json)
     else:
         return HTTPResponse(status=404)

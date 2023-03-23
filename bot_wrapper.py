@@ -9,29 +9,40 @@ from config_secrets import SERVER, ADMINS
 class BotWrapper(object):
     "An 'abstract' class to reuse code between different bots in this app."
     # should be overriden in actual bots
-    token = ""
+    token = None
     server = SERVER
     # should complete "to get a propmpts for [inline_purpose]"
     inline_purpose = "ERROR"
 
     def __init__(self):
         "Common setup happens here."
-        self.bot = telegram.Bot(self.token)
-        # please note HTTPS is enforced
-        webhook_url = f"https://{self.server}/{self.token}"
-        self.bot.set_webhook(url=webhook_url)
+        if self.is_active():
+            self.bot = telegram.Bot(self.token)
+            # please note HTTPS is enforced
+            webhook_url = f"https://{self.server}/{self.token}"
+            self.bot.set_webhook(url=webhook_url)
 
-        atexit.register(self.cleanup)
+            atexit.register(self.cleanup)
 
     def cleanup(self) -> None:
         "Cleanup method to remove the webhook on exit for additional tidiness."
         self.bot.delete_webhook()
+
+    def is_active(self) -> bool:
+        "A check whether is bot is configured to be active by providing a non-empty token"
+        # imagine using js-like !! shenanigans
+        return not not self.token
 
     def handle_update(self, update_as_json: str) -> HTTPResponse:
         """
         Routes updates to relevant methods.
         Supports only direct messages and inline queries.
         """
+        # should never happen, as without token this will not be called
+        # let's return the teapot code anyway
+        if not self.is_active():
+            return HTTPResponse(status=418)
+
         update: telegram.Update = telegram.Update.de_json(update_as_json, self.bot)
         if update.message is not None:
             return self.handle_message(update.message)
