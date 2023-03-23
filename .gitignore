@@ -2,3 +2,5 @@ __pycache__
 .vscode
 .venv
 config_secrets.py
+# ignore the saved data for cat macro bot
+data/cat_pics.json
