@@ -1,5 +1,5 @@
 # main app file, simple bottle app
-from bottle import route, run, request, static_file, HTTPResponse
+from bottle import route, run, request, static_file, template, HTTPResponse
 
 from ladder_bot import LadderBot
 from cat_macro_bot import CatMacroBot
@@ -14,7 +14,7 @@ PORT = 8081
 # returns static page with basic info
 @route("/")
 def return_index_page() -> HTTPResponse:
-    return static_file("index.html", root="")
+    return template("views/index.tpl", data=(1, 2))
 
 
 # handles any post request, if url matches bot's token, it's getting called
