@@ -9,8 +9,7 @@ from bot_info import BotInfo
 # instances to be used
 bots = (LadderBot(), CatMacroBot())
 # their info, and an empty value to generate a placeholder
-# TODO looks scuffed
-bots_info: tuple[BotInfo] = tuple([bot.get_data() for bot in bots] + [BotInfo(None, None),])
+bots_info: tuple[BotInfo] = tuple([bot.get_data() for bot in bots] + [BotInfo.get_placeholder_info(),])
 
 # 8080 was already taken on my host
 PORT = 8081
