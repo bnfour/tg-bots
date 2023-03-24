@@ -2,21 +2,23 @@ import atexit
 import telegram
 
 from bottle import HTTPResponse
+from typing import Iterable
 
-from config_secrets import SERVER, ADMINS
 from bot_info import BotInfo
 
 
 class BotWrapper(object):
     "An 'abstract' class to reuse code between different bots in this app."
-    # should be overriden in actual bots
-    token = None
-    server = SERVER
     # should complete "to get a propmpts for [inline_purpose]"
     inline_purpose = "ERROR"
 
-    def __init__(self):
+    def __init__(self, server: str, token: str, admins: Iterable[int]):
         "Common setup happens here."
+
+        self.server = server
+        self.token = token
+        self.admins = admins
+
         if self.is_active():
             self.bot = telegram.Bot(self.token)
             # please note HTTPS is enforced
@@ -77,7 +79,7 @@ class BotWrapper(object):
         if message.from_user is None:
             return False
         id_from = message.from_user.id
-        return id_from in ADMINS
+        return id_from in self.admins
 
     def reply(self, message: telegram.Message, text: str) -> None:
         "Convenience method to be repeteadly called within the bots."

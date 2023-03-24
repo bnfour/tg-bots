@@ -4,15 +4,13 @@ import os
 
 from fuzzywuzzy import fuzz
 from bottle import HTTPResponse
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Iterable
 
-from config_secrets import ADMINS, CAT_MACRO_BOT_TOKEN
 from bot_wrapper import BotWrapper
 
 
 class CatMacroBot(BotWrapper):
     "Class for inline searches of predefined collection of pictures"
-    token = CAT_MACRO_BOT_TOKEN
     inline_purpose = "matching cat pictures"
     # path to physical backup of available pictures
     file_path = "data/cat_pics.json"
@@ -21,8 +19,8 @@ class CatMacroBot(BotWrapper):
     # ratio of similarity threshold between image captions and provided query
     similarity_threshold = 50
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, server: str, token: str, admins: Iterable[int]):
+        super().__init__(server, token, admins)
         # loading of exisiting data
         if os.path.exists(self.file_path):
             with open(self.file_path, "r") as file:
@@ -30,7 +28,7 @@ class CatMacroBot(BotWrapper):
         else:
             self.data: Dict[str, str] = dict()
         # used to keep track of whether admins issued /delete commands
-        self.deletion_tracker = {admin: False for admin in ADMINS}
+        self.deletion_tracker = {admin: False for admin in admins}
 
     def handle_message(self, message: telegram.Message) -> HTTPResponse:
         "Responds to /start, also adds pictures from admins to collection."

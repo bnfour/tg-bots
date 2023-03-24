@@ -6,8 +6,12 @@ from cat_macro_bot import CatMacroBot
 
 from bot_info import BotInfo
 
+# TODO move bots to a factory/manager class, and use secrets from there
+import config_secrets as cfg
+
 # instances to be used
-bots = (LadderBot(), CatMacroBot())
+bots = (LadderBot(cfg.SERVER, cfg.LADDER_BOT_TOKEN, cfg.ADMINS),
+    CatMacroBot(cfg.SERVER, cfg.LADDER_BOT_TOKEN, cfg.ADMINS))
 # their info, and an empty value to generate a placeholder
 bots_info: tuple[BotInfo] = tuple([bot.get_data() for bot in bots] + [BotInfo.get_placeholder_info(),])
 

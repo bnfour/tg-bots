@@ -1,24 +1,22 @@
 import telegram
 
 from bottle import HTTPResponse
-from typing import List
+from typing import List, Iterable
 
-from config_secrets import LADDER_BOT_TOKEN
 from bot_wrapper import BotWrapper
 
 
 class LadderBot(BotWrapper):
     "Ladder bot, now with probably cleaner code!"
-    token = LADDER_BOT_TOKEN
     inline_purpose = "ladder-like texts"
+    # button titles
+    titles = ("With spaces", "Compact without spaces")
+    # and button descriptions
+    descs = ("Regular text.", "Uselful for long strings.")
 
-    def __init__(self):
-        super().__init__()
-        # button titles
-        self.titles = ("With spaces", "Compact without spaces")
-        # and button descriptions
-        self.descs = ("Regular text.", "Uselful for long strings.")
-        # and also thumbnails for those
+    def __init__(self, server: str, token: str, admins: Iterable[int]):
+        super().__init__(server, token, admins)
+        # populate inline options' URL once the server is known
         self.imgs = tuple(self.server + i for i in ("/i/sparse.png", "/i/dense.png"))
 
     def handle_message(self, message: telegram.Message) -> HTTPResponse:
