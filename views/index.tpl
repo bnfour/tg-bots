@@ -25,6 +25,10 @@
                 font-family: 'Iosevka', 'Consolas', 'Courier New', Courier, monospace;
             }
 
+            .bot-list > *:not(:last-child)::after {
+                content: " · ";
+            }
+
             @media (prefers-color-scheme: dark) {
                 body {
                     color: #ccc;
@@ -41,6 +45,10 @@
 
                 a:active {
                     color: #fff;
+                }
+
+                img.bw {
+                    filter: invert(0.8);
                 }
             }
         </style>
