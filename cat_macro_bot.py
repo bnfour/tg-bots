@@ -13,7 +13,7 @@ class CatMacroBot(BotBase):
     "Class for inline searches of predefined collection of pictures"
     inline_purpose = "matching cat pictures"
     # path to physical backup of available pictures
-    file_path = "data/cat_pics.json"
+    file_path = "cat_pics.json"
     # up to this amount of somewhat relevant pics will be served
     max_pics = 7
     # ratio of similarity threshold between image captions and provided query
