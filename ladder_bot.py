@@ -14,7 +14,7 @@ class LadderBot(BotBase):
     # and button descriptions
     descs = ("Regular text.", "Uselful for long strings.")
 
-    def __init__(self, server: str, token: str, admins: Iterable[int]):
+    def __init__(self, server: str, token: str | None, admins: Iterable[int]):
         super().__init__(server, token, admins)
         # populate inline options' URL once the server is known
         self.imgs = tuple(self.server + i for i in ("/i/sparse.png", "/i/dense.png"))

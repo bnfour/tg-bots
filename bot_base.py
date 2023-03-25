@@ -12,7 +12,7 @@ class BotBase(object):
     # should complete "to get a propmpts for [inline_purpose]"
     inline_purpose = "ERROR"
 
-    def __init__(self, server: str, token: str, admins: Iterable[int]):
+    def __init__(self, server: str, token: str | None, admins: Iterable[int]):
         "Common setup happens here."
 
         self.server = server

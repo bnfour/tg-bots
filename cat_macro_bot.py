@@ -19,7 +19,7 @@ class CatMacroBot(BotBase):
     # ratio of similarity threshold between image captions and provided query
     similarity_threshold = 50
 
-    def __init__(self, server: str, token: str, admins: Iterable[int]):
+    def __init__(self, server: str, token: str | None, admins: Iterable[int]):
         super().__init__(server, token, admins)
         # loading of exisiting data
         if os.path.exists(self.file_path):
