@@ -1,20 +1,8 @@
 # main app file, simple bottle app
 from bottle import route, run, request, static_file, template, HTTPResponse
+from bot_manager import BotManager
 
-from ladder_bot import LadderBot
-from cat_macro_bot import CatMacroBot
-
-from bot_info import BotInfo
-
-# TODO move bots to a factory/manager class, and use secrets from there
-import config_secrets as cfg
-
-# instances to be used
-bots = (LadderBot(cfg.SERVER, cfg.LADDER_BOT_TOKEN, cfg.ADMINS),
-    CatMacroBot(cfg.SERVER, cfg.LADDER_BOT_TOKEN, cfg.ADMINS))
-# their info, and an empty value to generate a placeholder
-bots_info: tuple[BotInfo] = tuple([bot.get_data() for bot in bots] + [BotInfo.get_placeholder_info(),])
-
+manager = BotManager()
 # 8080 was already taken on my host
 PORT = 8081
 
@@ -22,17 +10,13 @@ PORT = 8081
 # returns static page with basic info
 @route("/")
 def return_index_page() -> HTTPResponse:
-    return template("views/index.tpl", data=bots_info)
+    return template("views/index.tpl", data=manager.get_info())
 
 
 # handles any post request, if url matches bot's token, it's getting called
 @route("/<string>", method="POST")
 def handle_webhook(string: str) -> HTTPResponse:
-    for bot in bots:
-        if bot.is_active() and bot.is_token(string):
-            return bot.handle_update(request.json)
-    else:
-        return HTTPResponse(status=404)
+    return manager.handle_request(string, request.json)
 
 
 # handles requests to pictures
