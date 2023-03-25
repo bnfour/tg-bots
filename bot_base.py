@@ -7,7 +7,7 @@ from typing import Iterable
 from bot_info import BotInfo
 
 
-class BotWrapper(object):
+class BotBase(object):
     "An 'abstract' class to reuse code between different bots in this app."
     # should complete "to get a propmpts for [inline_purpose]"
     inline_purpose = "ERROR"

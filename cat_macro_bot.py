@@ -6,10 +6,10 @@ from fuzzywuzzy import fuzz
 from bottle import HTTPResponse
 from typing import List, Tuple, Dict, Iterable
 
-from bot_wrapper import BotWrapper
+from bot_base import BotBase
 
 
-class CatMacroBot(BotWrapper):
+class CatMacroBot(BotBase):
     "Class for inline searches of predefined collection of pictures"
     inline_purpose = "matching cat pictures"
     # path to physical backup of available pictures

@@ -3,10 +3,10 @@ import telegram
 from bottle import HTTPResponse
 from typing import List, Iterable
 
-from bot_wrapper import BotWrapper
+from bot_base import BotBase
 
 
-class LadderBot(BotWrapper):
+class LadderBot(BotBase):
     "Ladder bot, now with probably cleaner code!"
     inline_purpose = "ladder-like texts"
     # button titles
