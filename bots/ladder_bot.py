@@ -3,7 +3,7 @@ import telegram
 from bottle import HTTPResponse
 from typing import List, Iterable
 
-from bot_base import BotBase
+from .bot_base import BotBase
 
 
 class LadderBot(BotBase):

@@ -6,7 +6,7 @@ from fuzzywuzzy import fuzz
 from bottle import HTTPResponse
 from typing import List, Tuple, Dict, Iterable
 
-from bot_base import BotBase
+from .bot_base import BotBase
 
 
 class CatMacroBot(BotBase):

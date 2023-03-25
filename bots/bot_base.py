@@ -4,7 +4,7 @@ import telegram
 from bottle import HTTPResponse
 from typing import Iterable
 
-from bot_info import BotInfo
+from .bot_info import BotInfo
 
 
 class BotBase(object):

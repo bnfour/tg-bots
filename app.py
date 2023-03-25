@@ -1,6 +1,6 @@
 # main app file, simple bottle app
 from bottle import route, run, request, static_file, template, HTTPResponse
-from bot_manager import BotManager
+from bots.bot_manager import BotManager
 
 manager = BotManager()
 # 8080 was already taken on my host

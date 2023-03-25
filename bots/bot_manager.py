@@ -2,9 +2,9 @@ from bottle import HTTPResponse
 
 import config_secrets
 
-from bot_info import BotInfo
-from ladder_bot import LadderBot
-from cat_macro_bot import CatMacroBot
+from .bot_info import BotInfo
+from .ladder_bot import LadderBot
+from .cat_macro_bot import CatMacroBot
 
 class BotManager(object):
     "Incapsulates all interaction with BotBase descendants."
