@@ -2,7 +2,7 @@
     <span>more to come?</span>
 % else:
     % if bot.is_online:
-        <a href="https://t.me/{{bot.username}}">@{{bot.username}}</a>
+        <span><a href="https://t.me/{{bot.username}}">@{{bot.username}}</a></span>
     % else:
         <span>N/A</span>
     % end
