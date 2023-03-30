@@ -1,5 +1,8 @@
 # bnfour's (python) telegram bot(s)
-Currently there is source for two (very-very useful) telegram bots.
+Disclaimer: this was written back in 2018, and does not work with the latest async-based version of the Telegram wrapper library used within. I can't be bothered to rewrite this and/or change the library to use, so take this code with a grain of salt.
+
+Currently there is source for two (very-very-ultra useful) telegram bots.
+
 ## Ladder bot (officially hosted as [@bnladder_bot](https://t.me/bnladder_bot))
 Inline bot that generates texts running along horizontal, vertical and diagonal directions simultaneously, for instance:
 
@@ -46,7 +49,7 @@ This bot isn't strictly inline: administrator accounts can manage pictures via c
 * `/delete` (or anything starting with `/delet`) puts bot into deletion mode: next picture to be sent (try to forward actual bot output) will be deleted from the collection if present. Anything else just cancels the deletion mode.
 
 ## Deployment
-See `requirements.txt` for dependencies. `python-Levenshtein` is optional and may be removed, although `fuzzywuzzy` will tell you it's slow if you do so.
+See `requirements.txt` for dependencies. `python-Levenshtein` is optional and may be removed, although `fuzzywuzzy` will tell you to install it for performance reasons.
 
 Configuration, including tokens for both bots and list of admin accounts, is stored in `config_secrets.py` file. This file is not tracked in this repo, so you can edit it without accidentally committing debug or even production configs for the world to see.
 
