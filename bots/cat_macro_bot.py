@@ -27,19 +27,13 @@ class CatMacroBot(BotBase):
                 self.data: Dict[str, str] = json.load(file)
         else:
             self.data: Dict[str, str] = dict()
-        # used to keep track of whether admins issued /delete commands
-        self.deletion_tracker = {admin: False for admin in admins}
 
     def handle_message(self, message: telegram.Message) -> HTTPResponse:
         "Responds to /start, also adds pictures from admins to collection."
         if message.text is not None and message.text == "/start":
             self.send_inline_start(message)
         elif self.is_message_from_admin(message):
-            admin_id = message.from_user.id
-            if self.deletion_tracker[admin_id]:
-                return self.handle_deletion_admin_input(message, admin_id)
-            else:
-                return self.handle_regular_admin_input(message, admin_id)
+            return self.handle_admin_input(message)
         else:
             self.send_inline_nag(message)
 
@@ -77,14 +71,24 @@ class CatMacroBot(BotBase):
         results.sort(key=lambda x: x[1], reverse=True)
         return tuple(x[0] for x in results[:entries_to_take])
 
-    def handle_regular_admin_input(self, message: telegram.Message, admin_id: int) -> HTTPResponse:
+    def handle_admin_input(self, message: telegram.Message) -> HTTPResponse:
         """
         Executed when there is no delete requests.
         Sent captioned photos are added to collection.
         """
-        if message.text is not None and message.text.startswith("/delet"):
-            self.deletion_tracker[admin_id] = True
-            self.reply(message, "Delete what? Forward a picture.")
+        if message.text is not None:
+            text = message.text.split(" ", maxsplit=1)
+            command = text[0]
+            if command.startswith("/delet") and len(text) > 1:
+                caption = text[1]
+                if len(self.data) > 0 and caption in self.data:
+                    del self.data[caption]
+                    self.dump_data()
+                    self.reply(message, "Removal OK")
+                else:
+                    self.reply(message, f"Error! Nothing to delete for \"{caption}\"")
+            else:
+                self.reply(message, "Sorry, can't understand you.")
         elif message.photo is not None and message.caption is not None:
             if len(message.photo) > 0:
                 pic_id = message.photo[0].file_id
@@ -102,26 +106,6 @@ class CatMacroBot(BotBase):
                 self.reply(message, "Error! Does not compute.")
         else:
             self.reply(message, "Sorry, can't understand you.")
-
-        return HTTPResponse(body="OK", status=200)
-
-    def handle_deletion_admin_input(self, message: telegram.Message, admin_id: int) -> HTTPResponse:
-        """
-        Executed when there is a delete request.
-        Sent photos are deleted from the collection if present.
-        """
-        if message.photo is not None and len(message.photo) > 0:
-            pic_id = message.photo[0].file_id
-            if pic_id in self.data.values():
-                self.data = {key: value for key, value in self.data.items()
-                    if value != pic_id}
-                self.dump_data()
-                self.reply(message, "Removal OK.")
-            else:
-                self.reply(message, "Error! Image not found. Try forwarding my own output.")
-        else:
-            self.reply(message, "Error! No image, deletion cancelled.")
-        self.deletion_tracker[admin_id] = False
 
         return HTTPResponse(body="OK", status=200)
 
